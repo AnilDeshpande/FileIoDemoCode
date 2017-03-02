@@ -1,7 +1,7 @@
 package youtube.codetutor.com.fileiodemocode;
 
 import android.content.Context;
-import android.support.v7.app.AppCompatActivity;
+import android.support.annotation.NonNull;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.Button;
@@ -9,15 +9,10 @@ import android.widget.EditText;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import java.io.BufferedReader;
-import java.io.FileInputStream;
 import java.io.FileNotFoundException;
-import java.io.FileOutputStream;
 import java.io.IOException;
-import java.io.InputStreamReader;
-import java.io.OutputStreamWriter;
 
-public class MainActivity extends AppCompatActivity implements View.OnClickListener{
+public class MainActivity extends BaseActivity implements View.OnClickListener{
 
 
     private static final String TAG=MainActivity.class.getSimpleName();
@@ -29,6 +24,10 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     private Button buttonWriteToFile,buttonReadFromFile;
     private TextView textViewContentFromFile;
     private EditText editTextUserMessage;
+    private UserAction recentUserAction;
+    enum UserAction{
+        READ,WRITE
+    }
 
 
     @Override
@@ -60,22 +59,22 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
 
     private void writeContentToFile(){
+        recentUserAction=UserAction.WRITE;
         String string=editTextUserMessage.getText().toString();
         if(isStringEmpty(string)){
             try{
-                writeToFile(FILE_NAME,string,MODE_PRIVATE);
+               if(arePermissionsGranted(EXTERNAL_STORAGE_READ_WRITE_PERMISSIONS)){
+                   writeToExternalStorageFile(FILE_NAME,string);
+               }else{
+                   requestRunTimePermissions(this, EXTERNAL_STORAGE_READ_WRITE_PERMISSIONS, EXTERNAL_STORAGE_PERMISSION,"to Read and Write to external storage");
+               }
+            }catch (FileNotFoundException exception){
+                Toast.makeText(mContext,getString(R.string.error_string_file_not_found),Toast.LENGTH_SHORT).show();
+            } catch (IOException exception ){
+                Toast.makeText(mContext,getString(R.string.error_string_io_exception),Toast.LENGTH_SHORT).show();
             }catch (Exception exception){
                 Toast.makeText(mContext,getString(R.string.error_generic),Toast.LENGTH_SHORT).show();
             }
-        }
-    }
-
-
-    private boolean isStringEmpty(String string){
-        if(string!=null && !string.equals("") && string.length()>0){
-            return true;
-        }else {
-            return false;
         }
     }
 
@@ -86,9 +85,20 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     }
 
     private void populateTheReadText(){
+        recentUserAction=UserAction.READ;
         try{
-            textViewContentFromFile.setText(readFromFile(FILE_NAME));
-            textViewContentFromFile.setVisibility(View.VISIBLE);
+            if(arePermissionsGranted(EXTERNAL_STORAGE_READ_WRITE_PERMISSIONS)){
+                textViewContentFromFile.setText(readTextFromExternalStorage(FILE_NAME));
+                textViewContentFromFile.setVisibility(View.VISIBLE);
+            }else{
+                requestRunTimePermissions(this, EXTERNAL_STORAGE_READ_WRITE_PERMISSIONS, EXTERNAL_STORAGE_PERMISSION,"to Read and Write to external card");
+            }
+        }catch (FileNotFoundException exception){
+            Toast.makeText(mContext,getString(R.string.error_string_file_not_found),Toast.LENGTH_SHORT).show();
+            textViewContentFromFile.setVisibility(View.GONE);
+        } catch (IOException exception ){
+            Toast.makeText(mContext,getString(R.string.error_string_io_exception),Toast.LENGTH_SHORT).show();
+            textViewContentFromFile.setVisibility(View.GONE);
         }catch (Exception exception){
             Toast.makeText(mContext,getString(R.string.error_generic),Toast.LENGTH_SHORT).show();
             textViewContentFromFile.setVisibility(View.GONE);
@@ -96,9 +106,15 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     }
 
     private void populatTextFromPreviousSession(){
+        recentUserAction=UserAction.READ;
         String readContent=null;
         try{
-            readContent= readFromFile(FILE_NAME);
+            if(arePermissionsGranted(EXTERNAL_STORAGE_READ_WRITE_PERMISSIONS)){
+                readContent= readTextFromExternalStorage(FILE_NAME);
+            }else{
+                requestRunTimePermissions(this, EXTERNAL_STORAGE_READ_WRITE_PERMISSIONS, EXTERNAL_STORAGE_PERMISSION,"to read from external storage");
+            }
+
             textViewContentFromFile.setVisibility(View.VISIBLE);
         }catch (Exception exception){
             Toast.makeText(mContext,getString(R.string.error_generic),Toast.LENGTH_SHORT).show();
@@ -107,27 +123,15 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         textViewContentFromFile.setText("From Previous Session: \n "+readContent);
     }
 
-    private String readFromFile(String fileName) throws FileNotFoundException, IOException{
-        String readString="";
-
-        FileInputStream fileInputStream=openFileInput(fileName);
-        InputStreamReader inputStreamReader=new InputStreamReader(fileInputStream);
-        BufferedReader bufferedReader=new BufferedReader(inputStreamReader);
-        StringBuilder stringBuilder=new StringBuilder(readString);
-        while ((readString=bufferedReader.readLine())!=null){
-            stringBuilder.append(readString);
+    @Override
+    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
+        if(arePermissionsGranted(permissions) && requestCode== EXTERNAL_STORAGE_PERMISSION){
+            if(recentUserAction==UserAction.WRITE){
+                writeContentToFile();
+            }else if(recentUserAction==UserAction.READ){
+                populateTheReadText();
+            }
         }
-        inputStreamReader.close();
-        return stringBuilder.toString();
-    }
-
-    private void writeToFile(String fileName,String sourceText,int MODE) throws
-            FileNotFoundException,IOException{
-
-        FileOutputStream fileOutputStream=openFileOutput(fileName,MODE);
-        OutputStreamWriter outputStreamWriter=new OutputStreamWriter(fileOutputStream);
-        outputStreamWriter.write(sourceText);
-        outputStreamWriter.flush();
-        outputStreamWriter.close();
     }
 }
