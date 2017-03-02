@@ -42,6 +42,13 @@ public class BaseActivity extends AppCompatActivity implements ActivityCompat.On
         super.onCreate(savedInstanceState, persistentState);
     }
 
+    /**
+     * This method reads the text content for internal memory
+     * @param fileName
+     * @return String represented the read text
+     * @throws FileNotFoundException
+     * @throws IOException
+     */
     protected String readFromFile(String fileName) throws FileNotFoundException, IOException {
         String readString="";
 
@@ -56,6 +63,14 @@ public class BaseActivity extends AppCompatActivity implements ActivityCompat.On
         return stringBuilder.toString();
     }
 
+    /**
+     * This file writes the text to an internal file
+     * @param fileName - name of the file
+     * @param sourceText - The text that needs to be written to the file
+     * @param MODE
+     * @throws FileNotFoundException
+     * @throws IOException
+     */
     protected void writeToFile(String fileName,String sourceText,int MODE) throws
             FileNotFoundException,IOException{
 
@@ -66,6 +81,14 @@ public class BaseActivity extends AppCompatActivity implements ActivityCompat.On
         outputStreamWriter.close();
     }
 
+    /**
+     * Overloaded writeToFile which will be used by writeToExternalStorage method
+     * @param file
+     * @param sourceText
+     * @return
+     * @throws FileNotFoundException
+     * @throws IOException
+     */
     private File writeToFile(File file,String sourceText) throws
             FileNotFoundException, IOException{
         FileWriter fileWriter=new FileWriter(file);
@@ -75,6 +98,11 @@ public class BaseActivity extends AppCompatActivity implements ActivityCompat.On
         return file;
     }
 
+    /**
+     * A utilitarian method that returns true if String is not empty
+     * @param string
+     * @return
+     */
     protected boolean isStringEmpty(String string){
         if(string!=null && !string.equals("") && string.length()>0){
             return true;
@@ -83,6 +111,14 @@ public class BaseActivity extends AppCompatActivity implements ActivityCompat.On
         }
     }
 
+    /**
+     * Utilitarian method can be used to request any kind of permission
+     *
+     * @param activity - Activity on which the permission check is being done and where the call back will go
+     * @param permissions - the permissions that needs to asked for
+     * @param customPermissionConstant - Developer defined constant for a particular kind of permission
+     * @param reason - String representing the reasoning why app needs this permission
+     */
     protected void requestRunTimePermissions(final Activity activity, final String [] permissions, final int customPermissionConstant, String reason){
         if(permissions.length==1){
             if (ActivityCompat.shouldShowRequestPermissionRationale(this,permissions[0])){
@@ -108,6 +144,12 @@ public class BaseActivity extends AppCompatActivity implements ActivityCompat.On
         }
     }
 
+    /**
+     * Utilitarian method to check whether a set of permissions are granted - returns false even if
+     * of teh permissions for an operation is missing
+     * @param permissions
+     * @return
+     */
     protected boolean arePermissionsGranted(String [] permissions){
         for(String permission: permissions){
             if(ActivityCompat.checkSelfPermission(this,permission)== PackageManager.PERMISSION_DENIED){
@@ -117,6 +159,13 @@ public class BaseActivity extends AppCompatActivity implements ActivityCompat.On
         return true;
     }
 
+    /**
+     * Writes a text to file on external storage
+     * @param filename
+     * @param text
+     * @throws FileNotFoundException
+     * @throws IOException
+     */
     protected void writeToExternalStorageFile(String filename,String text) throws
             FileNotFoundException, IOException {
         if(isExternalStorageWritable()){
@@ -126,6 +175,13 @@ public class BaseActivity extends AppCompatActivity implements ActivityCompat.On
         }
     }
 
+    /**
+     *  Reads the text from external Storage
+     * @param fileName
+     * @return
+     * @throws FileNotFoundException
+     * @throws IOException
+     */
     protected String readTextFromExternalStorage(String fileName) throws
             FileNotFoundException, IOException{
         String readString="";
@@ -138,6 +194,13 @@ public class BaseActivity extends AppCompatActivity implements ActivityCompat.On
         return readString;
     }
 
+    /**
+     * Utlitarin method that takes File as an argument and returns the textual content of file
+     * @param file
+     * @return
+     * @throws FileNotFoundException
+     * @throws IOException
+     */
     private String readFromFile(File file) throws FileNotFoundException, IOException{
        String readString="";
        BufferedReader bufferedReader=new BufferedReader(new FileReader(file));
