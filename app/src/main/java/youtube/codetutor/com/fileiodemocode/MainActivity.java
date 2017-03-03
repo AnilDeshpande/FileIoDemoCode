@@ -66,7 +66,7 @@ public class MainActivity extends BaseActivity implements View.OnClickListener{
                if(arePermissionsGranted(EXTERNAL_STORAGE_READ_WRITE_PERMISSIONS)){
                    writeToExternalStorageFile(FILE_NAME,string);
                }else{
-                   requestRunTimePermissions(this, EXTERNAL_STORAGE_READ_WRITE_PERMISSIONS, EXTERNAL_STORAGE_PERMISSION,"to Read and Write to external storage");
+                   requestRunTimePermissions(this, EXTERNAL_STORAGE_READ_WRITE_PERMISSIONS, EXTERNAL_STORAGE_PERMISSION,"to READ/WRITE to external storage");
                }
             }catch (FileNotFoundException exception){
                 Toast.makeText(mContext,getString(R.string.error_string_file_not_found),Toast.LENGTH_SHORT).show();
@@ -91,7 +91,7 @@ public class MainActivity extends BaseActivity implements View.OnClickListener{
                 textViewContentFromFile.setText(readTextFromExternalStorage(FILE_NAME));
                 textViewContentFromFile.setVisibility(View.VISIBLE);
             }else{
-                requestRunTimePermissions(this, EXTERNAL_STORAGE_READ_WRITE_PERMISSIONS, EXTERNAL_STORAGE_PERMISSION,"to Read and Write to external card");
+                requestRunTimePermissions(this, EXTERNAL_STORAGE_READ_WRITE_PERMISSIONS, EXTERNAL_STORAGE_PERMISSION,"to READ/WRITE to external card");
             }
         }catch (FileNotFoundException exception){
             Toast.makeText(mContext,getString(R.string.error_string_file_not_found),Toast.LENGTH_SHORT).show();
@@ -112,7 +112,7 @@ public class MainActivity extends BaseActivity implements View.OnClickListener{
             if(arePermissionsGranted(EXTERNAL_STORAGE_READ_WRITE_PERMISSIONS)){
                 readContent= readTextFromExternalStorage(FILE_NAME);
             }else{
-                requestRunTimePermissions(this, EXTERNAL_STORAGE_READ_WRITE_PERMISSIONS, EXTERNAL_STORAGE_PERMISSION,"to read from external storage");
+                requestRunTimePermissions(this, EXTERNAL_STORAGE_READ_WRITE_PERMISSIONS, EXTERNAL_STORAGE_PERMISSION,"to READ/WRITE external storage");
             }
 
             textViewContentFromFile.setVisibility(View.VISIBLE);

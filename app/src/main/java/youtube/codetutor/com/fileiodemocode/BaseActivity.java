@@ -169,7 +169,7 @@ public class BaseActivity extends AppCompatActivity implements ActivityCompat.On
     protected void writeToExternalStorageFile(String filename,String text) throws
             FileNotFoundException, IOException {
         if(isExternalStorageWritable()){
-            externalStorageDirectory=new File(Environment.getExternalStorageDirectory(),this.getPackageName());
+            externalStorageDirectory=new File(Environment.getExternalStorageDirectory(),getPackageName());
             externalStorageDirectory.mkdir();
             writeToFile(new File(externalStorageDirectory,filename),text);
         }
@@ -187,7 +187,7 @@ public class BaseActivity extends AppCompatActivity implements ActivityCompat.On
         String readString="";
         if(isExternalStorageReadable()){
             if(externalStorageDirectory==null){
-                externalStorageDirectory=new File(Environment.getExternalStorageDirectory(),this.getPackageName());
+                externalStorageDirectory=new File(Environment.getExternalStorageDirectory(),getPackageName());
             }
             readString=readFromFile(new File(externalStorageDirectory.getAbsolutePath()+"/"+fileName));
         }
