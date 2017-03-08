@@ -1,8 +1,12 @@
 package youtube.codetutor.com.fileiodemocode;
 
 import android.content.Context;
+import android.content.SharedPreferences;
 import android.support.annotation.NonNull;
 import android.os.Bundle;
+import android.view.Menu;
+import android.view.MenuInflater;
+import android.view.MenuItem;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
@@ -21,6 +25,8 @@ public class MainActivity extends BaseActivity implements View.OnClickListener{
 
     private Context mContext;
 
+    private SharedPreferences sharedPreferences;
+
     private Button buttonWriteToFile,buttonReadFromFile;
     private TextView textViewContentFromFile;
     private EditText editTextUserMessage;
@@ -28,6 +34,7 @@ public class MainActivity extends BaseActivity implements View.OnClickListener{
     enum UserAction{
         READ,WRITE
     }
+
 
 
     @Override
@@ -45,6 +52,8 @@ public class MainActivity extends BaseActivity implements View.OnClickListener{
         buttonReadFromFile.setOnClickListener(this);
         buttonWriteToFile.setOnClickListener(this);
 
+        sharedPreferences=getSharedPreferences(getPackageName()+"."+TAG,MODE_PRIVATE);
+
     }
 
     @Override
@@ -61,7 +70,14 @@ public class MainActivity extends BaseActivity implements View.OnClickListener{
     private void writeContentToFile(){
         recentUserAction=UserAction.WRITE;
         String string=editTextUserMessage.getText().toString();
+
         if(isStringEmpty(string)){
+            SharedPreferences.Editor editor=sharedPreferences.edit();
+            editor.putString("SAMPLE_KEY",string);
+            editor.commit();
+        }
+
+        /*if(isStringEmpty(string)){
             try{
                if(arePermissionsGranted(EXTERNAL_STORAGE_READ_WRITE_PERMISSIONS)){
                    writeToExternalStorageFile(FILE_NAME,string);
@@ -75,7 +91,7 @@ public class MainActivity extends BaseActivity implements View.OnClickListener{
             }catch (Exception exception){
                 Toast.makeText(mContext,getString(R.string.error_generic),Toast.LENGTH_SHORT).show();
             }
-        }
+        }*/
     }
 
     @Override
@@ -86,7 +102,8 @@ public class MainActivity extends BaseActivity implements View.OnClickListener{
 
     private void populateTheReadText(){
         recentUserAction=UserAction.READ;
-        try{
+        textViewContentFromFile.setText(sharedPreferences.getString("SAMPLE_KEY","String not found"));
+        /*try{
             if(arePermissionsGranted(EXTERNAL_STORAGE_READ_WRITE_PERMISSIONS)){
                 textViewContentFromFile.setText(readTextFromExternalStorage(FILE_NAME));
                 textViewContentFromFile.setVisibility(View.VISIBLE);
@@ -102,12 +119,12 @@ public class MainActivity extends BaseActivity implements View.OnClickListener{
         }catch (Exception exception){
             Toast.makeText(mContext,getString(R.string.error_generic),Toast.LENGTH_SHORT).show();
             textViewContentFromFile.setVisibility(View.GONE);
-        }
+        }*/
     }
 
     private void populatTextFromPreviousSession(){
         recentUserAction=UserAction.READ;
-        String readContent=null;
+        /*String readContent=null;
         try{
             if(arePermissionsGranted(EXTERNAL_STORAGE_READ_WRITE_PERMISSIONS)){
                 readContent= readTextFromExternalStorage(FILE_NAME);
@@ -119,8 +136,8 @@ public class MainActivity extends BaseActivity implements View.OnClickListener{
         }catch (Exception exception){
             Toast.makeText(mContext,getString(R.string.error_generic),Toast.LENGTH_SHORT).show();
             textViewContentFromFile.setVisibility(View.GONE);
-        }
-        textViewContentFromFile.setText("From Previous Session: \n "+readContent);
+        }*/
+        textViewContentFromFile.setText("From Previous Session: \n "+sharedPreferences.getString("SAMPLE_KEY","String not found"));
     }
 
     @Override
@@ -133,5 +150,17 @@ public class MainActivity extends BaseActivity implements View.OnClickListener{
                 populateTheReadText();
             }
         }
+    }
+
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        MenuInflater menuInflater=getMenuInflater();
+        menuInflater.inflate(R.menu.menu_main_activity,menu);
+        return true;
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        return super.onOptionsItemSelected(item);
     }
 }
